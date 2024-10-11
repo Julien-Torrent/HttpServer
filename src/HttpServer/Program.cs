@@ -6,6 +6,7 @@ using HttpServer.WebServer;
 using HttpServer.WebServer.Http;
 using System.Diagnostics;
 using HttpServer.Middlewares.Default;
+using HttpServer.WebSockets;
 
 var builder = new WebServerBuilder();
 
@@ -32,6 +33,41 @@ builder.Router.MapGet("/ok", (context) =>
 .MapGet("/null", (context) =>
 {
     return Task.FromResult<Response>(null!);
+})
+.MapGet("/ws", async (context) => 
+{
+    if(context.IsWebSocket)
+    {
+        var socket = await context.AcceptWebSocket();
+        var tcs = new TaskCompletionSource<Response>();
+
+        _ = Task.Run(async () => 
+        {
+            try
+            {
+                while(true)
+                {
+                    var res = await socket.GetFrameAsync();
+                    Console.WriteLine(Encoding.UTF8.GetString(res.Payload));
+                }
+            }
+            catch(Exception)
+            {
+                tcs.SetResult(Response.NoContent());
+            }
+        });
+
+        return await tcs.Task;
+    }   
+    else
+    {
+        return new Response()
+        {
+            StatusCode = HttpStatusCode.BadRequest,
+            Headers = [],
+            Body = "Bad request! Only Ws"
+        };
+    }
 });
 
 

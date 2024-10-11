@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using HttpServer.WebSockets;
 
 namespace HttpServer.WebServer.Http;
 
@@ -78,6 +82,22 @@ public class Response
                 { "Content-Length", stringBody.Length.ToString() }
             },
             Body = stringBody
+        };
+    }
+
+    public static Response SwtichingProtocol(ReadOnlySpan<char> clientKey)
+    {
+        var acceptKey = Convert.ToBase64String(SHA1.HashData(Encoding.ASCII.GetBytes(clientKey.ToString() + Constants.MagicString)));
+
+        return new Response()
+        {
+            StatusCode = HttpStatusCode.SwitchingProtocols,
+            Headers = new Dictionary<string, string>()
+            {
+                { "Upgrade", "websocket" },
+                { "Connection", "Upgrade" },
+                { Constants.AcceptHeader, acceptKey }
+            }
         };
     }
 }

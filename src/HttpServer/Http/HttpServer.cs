@@ -74,7 +74,7 @@ public class HttpServer : IServer
                 stream = await stream.CreateSslStream(TlsCertificate);
             }
 
-            using var reader = new StreamReader(stream);
+            using var reader = new StreamReader(stream, leaveOpen: true);
 
             var requestLine = await reader.ReadLineAsync(ct);
             if (!HttpRequestParser.TryParseRequestLine(requestLine, out var request))
