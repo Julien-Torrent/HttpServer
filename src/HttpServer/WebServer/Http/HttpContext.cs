@@ -16,5 +16,8 @@ public class HttpContext
     public required Request Request { get; init; }
     public Response? Response { get; set; }
 
+    [MemberNotNullWhen(true, nameof(HttpEndpoint))]
+    public bool IsMatchedRoute { get; set; }
+    public Func<HttpContext, Task<Response>>? HttpEndpoint { get; set;}
     public RouteValueDictionary Parameters { get; set; } = [];
 } 

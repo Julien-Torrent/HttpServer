@@ -21,7 +21,11 @@ public class RouterMiddleware : IMiddleware
         if (_router.TryGetHandler(context.Request.Method, context.Request.Path, out var endpoint))
         {
             context.Parameters = endpoint.Parameters;
-            context.Response = await endpoint.Handler(context);
+            
+            context.IsMatchedRoute = true;
+            context.HttpEndpoint = endpoint.Handler;
+
+            await next();
         }
         else
         {

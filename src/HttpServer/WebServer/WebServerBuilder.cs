@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using HttpServer.Middlewares;
 using HttpServer.Middlewares.Default;
 using HttpServer.Routes;
@@ -20,6 +21,7 @@ public class WebServerBuilder
         _webServer = new WebServer(_pipeline, _httpListeners);
 
         _pipeline.AddMiddleware(new ErrorHandlerMiddleware());
+        _pipeline.AddMiddleware(new RouterMiddleware(Router.Build()));
     }
 
     public WebServerBuilder UseHttps(int port, string certificatePath, string password)
@@ -36,7 +38,9 @@ public class WebServerBuilder
 
     public WebServer Build()
     {
-        _pipeline.AddMiddleware(new RouterMiddleware(Router.Build()));
+        _pipeline.AddMiddleware(new EndpointMiddleware());
+        // Terminal middleware
+        _pipeline.AddMiddleware((_, _) => Task.CompletedTask);
         return _webServer;
     }
 }
