@@ -20,12 +20,12 @@ public readonly struct PayloadInfo
 
         if(length == 126)
         {
-            length = BinaryPrimitives.ReadInt32BigEndian([0, 0, ..value[2..4]]);
+            length = BinaryPrimitives.ReadUInt16BigEndian(value[2..4]);
             maskOffset = 4;
         }
         else if(length == 127)
         {
-            length = BinaryPrimitives.ReadInt64BigEndian([0, 0, ..value[2..9]]);
+            length = (long)BinaryPrimitives.ReadUInt64BigEndian(value[2..9]);
             maskOffset = 10;
         }
 

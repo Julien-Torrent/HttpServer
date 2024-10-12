@@ -48,7 +48,12 @@ builder.Router.MapGet("/ok", (context) =>
                 while(true)
                 {
                     var res = await socket.GetFrameAsync();
-                    Console.WriteLine(Encoding.UTF8.GetString(res.Payload));
+                    var name = Encoding.UTF8.GetString(res.Payload);
+
+                    await socket.WriteJsonAsync(new 
+                    {
+                        Greet = $"Hello {name}!",
+                    });
                 }
             }
             catch(Exception)
